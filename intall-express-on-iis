@@ -1,0 +1,10 @@
+* install node.js
+* install iisnode https://github.com/tjanczuk/iisnode/releases
+* install rewrite mode https://www.iis.net/downloads/microsoft/url-rewrite
+* install iis express cmd on the app folder and run "npm install express"
+* open iis
+* root/feature delegation change handler mapping to read/write
+* create connection pool
+* on the connection pool select advance settings
+* change identity to LocalSystem
+*

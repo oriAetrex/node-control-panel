@@ -1,0 +1,11 @@
+to fix error 500.19
+	
+	Open IIS Management, Under the main server node, select open Feature Delegation (in Management section)
+
+	"Handler Mappings" to "Read/Write" instead of "Read Only"
+
+	It looks like your hosting provider unnecessarily locked down IIS.
+
+	I was able to recreate the problem on my local IIS 7.5 server.
+
+	See this for a global settings reset.
