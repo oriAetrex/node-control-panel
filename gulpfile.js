@@ -2,6 +2,7 @@ var main_folder = './src/';
 
 var jsFiles = 'app/js/**/*.js';
 var tsFiles = '/app/ts/**/*.ts';
+var htmlFiles = '/app/ts/**/*.html';
 var lessFiles = 'app/less/**/*.less';
 var jsDest = 'public/js';
 var tsDest = 'public/ts';
@@ -75,13 +76,18 @@ gulp.task('less', function() {
 });
 
 // gulp.task('compile-typescript', ['clean'], function () {
-gulp.task('compile-typescript', function () {
+gulp.task('compile-typescript', ['copy-html'], function () {
     return gulp.src(main_folder + tsFiles)
         .pipe(sourcemaps.init())
         .pipe(typescript(tscConfig.compilerOptions))
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(main_folder + tsDest));
 });
+
+gulp.task('copy-html', function() {
+    gulp.src(main_folder + htmlFiles)
+        .pipe(gulp.dest(main_folder + tsDest));
+})
 
 gulp.task('watch', function () {
     var watcher = gulp.watch('src/app/**/*.*');
@@ -116,6 +122,7 @@ gulp.task('watch', function () {
             if (path.extname(event.path) === '.less' && !~tasks.indexOf('less')) tasks.push('less')
             if (path.extname(event.path) === '.less' && !~tasks.indexOf('inject')) tasks.push('inject')
             if (path.extname(event.path) === '.ts' && !~tasks.indexOf('compile-typescript')) tasks.push('compile-typescript')
+            if (path.extname(event.path) === '.html' && !~tasks.indexOf('copy-html')) tasks.push('copy-html')
             tasks.push('reload-browser')
             runSequence.apply(this,tasks);
         }

@@ -1,4 +1,5 @@
 var express = require('express');
+var session = require('./session.js');
 var app = express();
 var bodyParser = require('body-parser');
 var router = express.Router();
@@ -12,7 +13,7 @@ var port = process.env.PORT || 8080;
 // if(app.get('env') == 'development') {
 //     app.use(errorHandler());
 // }
-
+app.use(session(session.getConf()));
 app.use('/public',express.static(__dirname + '/src/public'));
 app.use('/node_modules', express.static(__dirname + '/node_modules'));
 app.use('/bower_components', express.static(__dirname + '/bower_components'));
@@ -55,10 +56,24 @@ router.get('/test', function (req, res) {
 router.get('/', function(req, res) {
     res.json({ message: 'hooray! welcome to our api!' });
 });
+router.post('/ajax_login', stores.login);
+router.post('/ajax_logout', stores.logout);
+router.post('/ajax_login_from_session', stores.ajax_login_from_session);
+
 router.get('/getAllStores', stores.getAllStores);
 
-app.use('/api', router);
 
+addToHeader = function (req, res, next) {
+    console.log("add to header called ... " + req.url);
+    // res.header('charset', 'utf-8')
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.header('Content-Type', 'application/json');
+    next();
+}
+
+app.use('/api', addToHeader, router);
 var server = app.listen(port, errCallback);
 
 function errCallback(err) {

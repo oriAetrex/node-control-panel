@@ -1,3 +1,6 @@
+/**
+ * Created by ori on 4/27/2017.
+ */
 "use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -9,68 +12,47 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Created by ori on 4/12/2017.
- */
 var core_1 = require("@angular/core");
-var http_1 = require("@angular/http");
-var Observable_1 = require("rxjs/Observable");
-require("rxjs/add/operator/catch");
-require("rxjs/add/operator/map");
-require("rxjs/add/observable/throw");
+var index_1 = require("./services/index");
+var global_service_1 = require("./services/global.service");
+var router_1 = require("@angular/router");
 var AppComponent = (function () {
-    function AppComponent(http) {
-        this.http = http;
-        this.usersUrl = '/api/getAllStores'; // URL to web API
-        this.stores = [];
-        this.name = 'Stores List';
+    function AppComponent(authenticationService, globalService, router) {
+        this.authenticationService = authenticationService;
+        this.globalService = globalService;
+        this.router = router;
     }
-    AppComponent.prototype.getAllStores = function () {
-        return this.http.get(this.usersUrl)
-            .map(this.extractData)
-            .catch(this.handleError);
-    };
-    AppComponent.prototype.extractData = function (res) {
-        var body = res.json();
-        return body.data || {};
-    };
-    AppComponent.prototype.handleError = function (error) {
-        // In a real world app, you might use a remote logging infrastructure
-        var errMsg;
-        if (error instanceof http_1.Response) {
-            var body = error.json() || '';
-            var err = body.error || JSON.stringify(body);
-            errMsg = error.status + " - " + (error.statusText || '') + " " + err;
-        }
-        else {
-            errMsg = error.message ? error.message : error.toString();
-        }
-        console.error(errMsg);
-        return Observable_1.Observable.throw(errMsg);
-    };
     AppComponent.prototype.ngOnInit = function () {
         var _this = this;
-        this.getAllStores().subscribe(function (data) {
+        this.authenticationService.isSessionLogin().subscribe(function (data) {
+            /**
+             * @param {{err:number,errMessage:string}} data
+             */
             console.log(data);
-            if (data.err) {
-                _this.errorMessage = data.errdesc;
+            if (!data.err) {
+                // store user details and jwt token in local storage to keep user logged in between page refreshes
+                localStorage.setItem('currentStore', JSON.stringify(data.store));
+                _this.globalService.isLogin = true;
             }
             else {
-                _this.stores = data.stores;
+                localStorage.removeItem('currentStore');
+                _this.globalService.isLogin = false;
             }
-            // for(let s of this.users) {
-            //     console.log(s.Email);
-            // }
-        }, function (error) { return _this.errorMessage = error; });
+        }, function (error) {
+        });
+        // this.authenticationService.isLogin()
     };
     return AppComponent;
 }());
 AppComponent = __decorate([
     core_1.Component({
+        // moduleId: module.id,
         selector: 'my-app',
-        template: "<h1>{{name}}</h1>\n                <ul>\n                <li *ngFor=\"let store of stores; let i = index\">{{store.Email}}</li>\n                </ul>\n                <div *ngIf=\"errorMessage\">error: {{errorMessage}}</div>",
+        templateUrl: './app.component.html'
     }),
-    __metadata("design:paramtypes", [http_1.Http])
+    __metadata("design:paramtypes", [index_1.AuthenticationService,
+        global_service_1.GlobalService,
+        router_1.Router])
 ], AppComponent);
 exports.AppComponent = AppComponent;
 
